@@ -1,0 +1,11 @@
+/* Basic styling */
+body {
+    font-family: sans-serif;
+    padding-top: 60px; /* Adjust if navbar height changes */
+}
+
+.container {
+    max-width: 960px;
+}
+
+/* Add more specific styles as needed */
