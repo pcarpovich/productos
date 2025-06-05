@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+{% from "_form_helpers.html" import render_field %}
+
+{% block content %}
+    <h2>{{ legend if legend else "Record New Stock Movement" }}</h2>
+
+    <form method="POST" action="{{ url_for('stock_movements.add_movement') }}">
+        {{ form.hidden_tag() }}
+
+        <div class="form-row">
+            <div class="form-group col-md-6">
+                {{ render_field(form.product_id, class="form-control") }}
+            </div>
+            <div class="form-group col-md-6">
+                {{ render_field(form.deposit_id, class="form-control") }}
+            </div>
+        </div>
+
+        <div class="form-row">
+            <div class="form-group col-md-6">
+                {{ render_field(form.type, class="form-control") }}
+            </div>
+            <div class="form-group col-md-6">
+                {{ render_field(form.quantity, class="form-control", placeholder="e.g., 10 or -5 for Ajuste") }}
+            </div>
+        </div>
+
+        <div class="form-row">
+            <div class="form-group col-md-6">
+                {{ render_field(form.operator_id, class="form-control") }}
+            </div>
+            <div class="form-group col-md-6">
+                {{ render_field(form.client_id, class="form-control") }}
+            </div>
+        </div>
+
+        <div class="form-group">
+            {{ render_field(form.timestamp, class="form-control") }}
+        </div>
+
+        <div class="form-group">
+            {{ form.submit(class="btn btn-primary") }}
+            {# <a href="{{ url_for('some_other_page_perhaps_dashboard') }}" class="btn btn-outline-secondary ml-2">Cancel</a> #}
+        </div>
+    </form>
+
+    {# Optional JavaScript to show/hide Operator/Client fields based on type #}
+    {# This can be added in a future iteration if desired for better UX #}
+    {# Example (very basic, using jQuery for simplicity if Bootstrap is loaded):
+    <script>
+        $(document).ready(function(){
+            function toggleFields() {
+                var movementType = $('#type').val();
+                if (movementType === 'Pedido operario') {
+                    $('#operator_id').closest('.form-group').show();
+                    $('#client_id').closest('.form-group').hide();
+                    $('#client_id').val(''); // Clear if hidden
+                } else if (movementType === 'Entrega cliente') {
+                    $('#operator_id').closest('.form-group').show(); // Operator can be optional or required
+                    $('#client_id').closest('.form-group').show();
+                } else { // Compra, Ajuste
+                    $('#operator_id').closest('.form-group').hide();
+                    $('#operator_id').val('');
+                    $('#client_id').closest('.form-group').hide();
+                    $('#client_id').val('');
+                }
+            }
+            $('#type').change(toggleFields);
+            toggleFields(); // Initial call
+        });
+    </script>
+    #}
+{% endblock %}

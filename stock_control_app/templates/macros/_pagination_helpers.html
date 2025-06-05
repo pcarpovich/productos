@@ -1,0 +1,36 @@
+{% macro render_pagination(pagination, endpoint) %}
+  <nav aria-label="Page navigation">
+    <ul class="pagination justify-content-center">
+      {% if pagination.has_prev %}
+        {# Merge existing args with new page arg. request.args is an ImmutableMultiDict. #}
+        {% set prev_args = request.args.copy() %}
+        {% set _ = prev_args.set('page', pagination.prev_num) %}
+        <li class="page-item"><a class="page-link" href="{{ url_for(endpoint, **prev_args) }}">Previous</a></li>
+      {% else %}
+        <li class="page-item disabled"><span class="page-link">Previous</span></li>
+      {% endif %}
+
+      {% for p in pagination.iter_pages(left_edge=1, right_edge=1, left_current=2, right_current=2) %}
+        {% if p %}
+          {% if p == pagination.page %}
+            <li class="page-item active"><span class="page-link">{{ p }}</span></li>
+          {% else %}
+            {% set page_args = request.args.copy() %}
+            {% set _ = page_args.set('page', p) %}
+            <li class="page-item"><a class="page-link" href="{{ url_for(endpoint, **page_args) }}">{{ p }}</a></li>
+          {% endif %}
+        {% else %}
+          <li class="page-item disabled"><span class="page-link">...</span></li>
+        {% endif %}
+      {% endfor %}
+
+      {% if pagination.has_next %}
+        {% set next_args = request.args.copy() %}
+        {% set _ = next_args.set('page', pagination.next_num) %}
+        <li class="page-item"><a class="page-link" href="{{ url_for(endpoint, **next_args) }}">Next</a></li>
+      {% else %}
+        <li class="page-item disabled"><span class="page-link">Next</span></li>
+      {% endif %}
+    </ul>
+  </nav>
+{% endmacro %}

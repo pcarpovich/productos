@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <div class="row mb-3">
+        <div class="col">
+            <h2>{{ title }}</h2>
+        </div>
+        <div class="col text-right">
+            <a href="{{ url_for('clients.add_client') }}" class="btn btn-primary">Add New Client</a>
+        </div>
+    </div>
+    {% if clients %}
+        <div class="table-responsive">
+            <table class="table table-striped table-hover">
+                <thead class="thead-dark">
+                    <tr>
+                        <th>ID</th>
+                    <th>Name</th>
+                    <th>Address</th>
+                    <th>Locality</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for client in clients %}
+                    <tr>
+                        <td>{{ client.id }}</td>
+                        <td>{{ client.name }}</td>
+                        <td>{{ client.address|nl2br if client.address else '-' }}</td> {# Using nl2br for TextArea newline display #}
+                        <td>{{ client.locality }}</td>
+                        <td>
+                            <a href="{{ url_for('clients.edit_client', client_id=client.id) }}" class="btn btn-sm btn-outline-secondary mr-1">Edit</a>
+                            <form action="{{ url_for('clients.delete_client', client_id=client.id) }}" method="POST" style="display:inline;" onsubmit="return confirm('Are you sure you want to delete client \'{{ client.name|escapejs }}\'?');">
+                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                                <button type="submit" class="btn btn-sm btn-outline-danger">Delete</button>
+                            </form>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+            </table>
+        </div>
+    {% else %}
+        <div class="alert alert-info">
+            No clients found. Click "Add New Client" to get started!
+        </div>
+    {% endif %}
+{% endblock %}
