@@ -1,0 +1,7 @@
+Flask>=2.0.0
+Flask-SQLAlchemy>=2.5.0
+Flask-Migrate>=3.0.0
+Flask-WTF>=1.0.0
+SQLAlchemy==1.4.51
+psycopg2-binary>=2.9.0
+WTForms-SQLAlchemy>=0.3

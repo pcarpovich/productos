@@ -1,0 +1,7 @@
+pycache/ *.py[cod] *$py.class
+venv/ *.venv/ env/
+*.db *.sqlite *.sqlite3
+instance/ .env *.envrc
+*.log logs/
+.vscode/ .idea/ *.project *.pydevproject .DS_Store *.swp
+

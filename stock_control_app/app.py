@@ -13,7 +13,7 @@ def create_app():
     # we might need to adjust this if app is run from outside its directory.
     # For now, assuming app is run from stock_control_app directory or instance folder is not used.
     app.config['SECRET_KEY'] = 'a_temporary_secret_key_for_development' # Added secret key
-    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///../stock_control.db'
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:////home/pcarpovich/productos/stock_control.db'
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
     # Initialize extensions with app context
