@@ -1,16 +1,46 @@
-{% macro render_field(field, label_visible=True) -%}
-    {% if label_visible %}
+{% macro render_field(field, label_visible=True, class="", placeholder="") %}
+    {% if label_visible and field.label %}
         {{ field.label(class="form-control-label") }}
     {% endif %}
 
+    {% set field_class = class if class else "form-control" %}
     {% if field.errors %}
-        {{ field(class="form-control is-invalid", **kwargs) }}
+        {% set field_class = field_class + " is-invalid" %}
+    {% endif %}
+
+    {% if field.type == 'CSRFTokenField' %}
+        {# Already rendered by form.hidden_tag() #}
+    {% elif field.type == 'SubmitField' %}
+        {{ field(class=class if class else "btn btn-primary") }}
+    {% elif field.type == 'BooleanField' %}
+        <div class="form-check">
+            {{ field(class="form-check-input " + field_class) }}
+            {% if field.label %}
+                {{ field.label(class="form-check-label") }}
+            {% endif %}
+        </div>
+    {% else %}
+        {{ field(class=field_class, placeholder=placeholder if placeholder else (field.label.text if field.label else ''), **kwargs) }}
+    {% endif %}
+
+    {% if field.errors %}
         <div class="invalid-feedback">
             {% for error in field.errors %}
                 <span>{{ error }}</span><br>
             {% endfor %}
         </div>
-    {% else %}
-        {{ field(class="form-control", **kwargs) }}
     {% endif %}
+{%- endmacro %}
+
+{% macro render_form_row(field1, field2=None, label_visible=True, class1="", class2="", placeholder1="", placeholder2="") %}
+    <div class="form-row">
+        <div class="form-group col-md-6">
+            {{ render_field(field1, label_visible=label_visible, class=class1, placeholder=placeholder1) }}
+        </div>
+        {% if field2 %}
+        <div class="form-group col-md-6">
+            {{ render_field(field2, label_visible=label_visible, class=class2, placeholder=placeholder2) }}
+        </div>
+        {% endif %}
+    </div>
 {%- endmacro %}

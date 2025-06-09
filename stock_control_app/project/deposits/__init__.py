@@ -1,1 +1,1 @@
-# This file makes 'deposits' a Python package
+# This file makes 'deposits' a Python package.

@@ -1,1 +1,1 @@
-# This file makes 'operators' a Python package
+# This file makes 'operators' a Python package.

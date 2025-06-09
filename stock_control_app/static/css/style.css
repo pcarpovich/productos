@@ -1,11 +1,92 @@
-/* Basic styling */
 body {
-    font-family: sans-serif;
-    padding-top: 60px; /* Adjust if navbar height changes */
+    padding-top: 0; /* Navbar is not fixed, so no top padding needed on body */
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
 }
 
-.container {
-    max-width: 960px;
+main.container {
+    flex: 1; /* Allows main content to grow and push footer down */
+    padding-bottom: 60px; /* Space for the footer */
 }
 
-/* Add more specific styles as needed */
+.footer {
+    /* flex-shrink: 0; */ /* Removed as part of sticky footer with flex */
+    /* position: absolute; */ /* Removed for flex sticky footer */
+    /* bottom: 0; */ /* Removed for flex sticky footer */
+    /* width: 100%; */ /* Removed for flex sticky footer */
+    /* height: 60px; */ /* Set a fixed height for the footer */
+    /* line-height: 60px; */ /* Vertically center footer content */
+    /* background-color: #f5f5f5; */ /* Standard light grey footer */
+    /* border-top: 1px solid #e7e7e7; */ /* Subtle top border */
+}
+
+/* Adjustments for smaller screens in navbar */
+.navbar-nav .nav-item {
+    text-align: center; /* Center nav items when stacked */
+}
+
+.navbar-nav .dropdown-menu {
+    text-align: left; /* Align dropdown items to the left */
+}
+
+/* Ensure forms are not too wide on very small screens */
+.form-control {
+    max-width: 100%; /* Ensure form controls don't overflow their containers */
+}
+
+/* Table responsiveness is handled by .table-responsive div */
+
+/* Flash messages styling */
+.alert {
+    margin-top: 1rem;
+}
+
+/* Jumbotron on home page */
+.jumbotron {
+    background-color: #e9ecef; /* Softer than default grey */
+    padding: 2rem 2rem;
+}
+
+/* Consistent button margins */
+.btn {
+    margin-bottom: 0.5rem; /* Add some space below buttons */
+}
+.btn-block + .btn-block { /* Space between stacked block buttons */
+    margin-top: 0.5rem;
+}
+
+/* Improve form group spacing */
+.form-group {
+    margin-bottom: 1.25rem;
+}
+
+/* Reduce size of pagination on smaller screens */
+@media (max-width: 768px) {
+    .pagination {
+        font-size: 0.875rem;
+    }
+    .pagination .page-link {
+        padding: 0.375rem 0.5rem;
+    }
+    .jumbotron h1 {
+        font-size: 2.5rem;
+    }
+    .jumbotron p.lead {
+        font-size: 1.1rem;
+    }
+}
+
+/* Highlight active nav link more distinctly */
+.navbar-dark .navbar-nav .nav-link.active,
+.navbar-dark .navbar-nav .show > .nav-link {
+    font-weight: bold;
+    /* color: #ffffff; */ /* Ensure it's white on dark bg */
+}
+
+/* Ensure form labels are visible and have some space */
+.form-control-label {
+    display: inline-block;
+    margin-bottom: .5rem;
+    font-weight: 500;
+}

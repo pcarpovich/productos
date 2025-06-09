@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+
+{% block page_title %}Home - Control de Stock{% endblock %}
+
+{% block content %}
+<div class="jumbotron">
+    <h1 class="display-4">Welcome to Stock Control!</h1>
+    <p class="lead">This application helps you manage your products, deposits, stock levels, and movements efficiently.</p>
+    <hr class="my-4">
+    <p>You can start by managing your master data or recording new stock movements.</p>
+    <a class="btn btn-primary btn-lg mr-2" href="{{ url_for('reports.view_current_stock') }}" role="button">View Current Stock</a>
+    <a class="btn btn-secondary btn-lg" href="{{ url_for('stock_movements.add_movement') }}" role="button">Record a Movement</a>
+</div>
+
+<div class="row">
+    <div class="col-md-6">
+        <h3>Master Data Management</h3>
+        <ul>
+            {% if nav_links %} {# nav_links is passed from app.py route #}
+                <li><a href="{{ nav_links.get('Products', '#') }}">Manage Products</a></li>
+                <li><a href="{{ nav_links.get('Deposits', '#') }}">Manage Deposits</a></li>
+                <li><a href="{{ nav_links.get('Operators', '#') }}">Manage Operators</a></li>
+                <li><a href="{{ nav_links.get('Clients', '#') }}">Manage Clients</a></li>
+            {% else %}
+                <li><a href="{{ url_for('products.list_products') }}">Manage Products</a></li>
+                <li><a href="{{ url_for('deposits.list_deposits') }}">Manage Deposits</a></li>
+                <li><a href="{{ url_for('operators.list_operators') }}">Manage Operators</a></li>
+                <li><a href="{{ url_for('clients.list_clients') }}">Manage Clients</a></li>
+            {% endif %}
+        </ul>
+    </div>
+    <div class="col-md-6">
+        <h3>Reports & History</h3>
+        <ul>
+            {% if nav_links %}
+                <li><a href="{{ nav_links.get('Movement History', '#') }}">View Movement History</a></li>
+                <li><a href="{{ nav_links.get('Low Stock Alerts', '#') }}">Low Stock Alerts</a></li>
+                <li><a href="{{ nav_links.get('Client Consumption', '#') }}">Client Consumption Report</a></li>
+                <li><a href="{{ nav_links.get('Operator Consumption', '#') }}">Operator Consumption Report</a></li>
+            {% else %}
+                 <li><a href="{{ url_for('reports.view_movement_history') }}">View Movement History</a></li>
+                <li><a href="{{ url_for('reports.view_low_stock_alerts') }}">Low Stock Alerts</a></li>
+                <li><a href="{{ url_for('reports.view_client_consumption') }}">Client Consumption Report</a></li>
+                <li><a href="{{ url_for('reports.view_operator_consumption') }}">Operator Consumption Report</a></li>
+            {% endif %}
+        </ul>
+    </div>
+</div>
+{% endblock %}

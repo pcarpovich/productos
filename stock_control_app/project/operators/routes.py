@@ -1,7 +1,8 @@
 from flask import Blueprint, render_template, request, flash, redirect, url_for
-from stock_control_app.project.models import Operator
-from stock_control_app.project.operators.forms import OperatorForm
-from stock_control_app.app import db
+from sqlalchemy.exc import IntegrityError
+from stock_control_app.app import db # Relative import for db
+from ..models import Operator, StockMovement # Relative import for models
+from .forms import OperatorForm # Relative import for forms
 
 operator_bp = Blueprint('operators',
                         __name__,
@@ -9,7 +10,7 @@ operator_bp = Blueprint('operators',
 
 @operator_bp.route('/')
 def list_operators():
-    operators = Operator.query.all()
+    operators = Operator.query.order_by(Operator.name).all()
     return render_template('operators_list.html', operators=operators, title="Operators")
 
 @operator_bp.route('/add', methods=['GET', 'POST'])
@@ -22,21 +23,22 @@ def add_operator():
             db.session.commit()
             flash(f'Operator "{new_operator.name}" has been successfully added.', 'success')
             return redirect(url_for('operators.list_operators'))
-        except Exception as e: # Catching potential integrity errors if DB constraint is hit before form validation
+        except IntegrityError as e:
             db.session.rollback()
-            if 'UNIQUE constraint failed: operator.dni' in str(e).lower():
-                form.dni.errors.append('This DNI is already registered in the database.')
+            if "operator.dni" in str(e.orig).lower():
+                 form.dni.errors.append("This DNI already exists in the database.")
             else:
-                flash('Error saving operator: ' + str(e), 'danger')
+                flash(f"Error adding operator: Database integrity error. {str(e)}", 'danger')
+        except Exception as e:
+            db.session.rollback()
+            flash(f"An unexpected error occurred: {str(e)}", 'danger')
+
     return render_template('operator_form.html', form=form, title="Add New Operator", legend="Add New Operator")
 
 @operator_bp.route('/edit/<int:operator_id>', methods=['GET', 'POST'])
 def edit_operator(operator_id):
     operator = Operator.query.get_or_404(operator_id)
-    form = OperatorForm(obj=operator) # Pre-populate form, passing 'obj' for uniqueness validator
-
-    if request.method == 'POST': # Ensure _obj is set for POST validation
-        form._obj = operator
+    form = OperatorForm(obj=operator) # Pass operator object for pre-population and validation context
 
     if form.validate_on_submit():
         operator.name = form.name.data
@@ -45,12 +47,15 @@ def edit_operator(operator_id):
             db.session.commit()
             flash(f'Operator "{operator.name}" has been successfully updated.', 'success')
             return redirect(url_for('operators.list_operators'))
+        except IntegrityError as e:
+            db.session.rollback()
+            if "operator.dni" in str(e.orig).lower():
+                 form.dni.errors.append("This DNI already exists in the database.")
+            else:
+                flash(f"Error updating operator: Database integrity error. {str(e)}", 'danger')
         except Exception as e:
             db.session.rollback()
-            if 'UNIQUE constraint failed: operator.dni' in str(e).lower():
-                form.dni.errors.append('This DNI is already registered in the database.')
-            else:
-                flash('Error updating operator: ' + str(e), 'danger')
+            flash(f"An unexpected error occurred: {str(e)}", 'danger')
 
     return render_template('operator_form.html', form=form, title=f"Edit Operator: {operator.name}", legend=f"Edit Operator: {operator.name}", operator=operator)
 
@@ -58,7 +63,20 @@ def edit_operator(operator_id):
 def delete_operator(operator_id):
     operator = Operator.query.get_or_404(operator_id)
     operator_name = operator.name
+
+    if StockMovement.query.filter_by(operator_id=operator.id).first():
+        flash(f'Operator "{operator_name}" cannot be deleted because they have associated stock movements. Please remove or reassign these movements first.', 'danger')
+        return redirect(url_for('operators.list_operators'))
+
     db.session.delete(operator)
-    db.session.commit()
-    flash(f'Operator "{operator_name}" has been successfully deleted.', 'success')
+    try:
+        db.session.commit()
+        flash(f'Operator "{operator_name}" has been successfully deleted.', 'success')
+    except IntegrityError as e:
+        db.session.rollback()
+        flash(f"Error deleting operator: Database integrity error. {str(e)}", 'danger')
+    except Exception as e:
+        db.session.rollback()
+        flash(f"An unexpected error occurred: {str(e)}", 'danger')
+
     return redirect(url_for('operators.list_operators'))

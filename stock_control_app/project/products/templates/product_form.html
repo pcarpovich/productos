@@ -1,39 +1,39 @@
 {% extends "base.html" %}
-{% from "_form_helpers.html" import render_field %}
+{% from "macros/_form_helpers.html" import render_field %}
 
 {% block content %}
-    <h2>{{ legend if legend else ('Add New Product' if not product else 'Edit Product: ' + product.name) }}</h2>
+    <div class="row">
+        <div class="col-md-8 offset-md-2">
+            <h2>{{ legend if legend else ('Add New Product' if not product else 'Edit Product: ' + product.name) }}</h2>
+            <hr>
+            <form method="POST" action="">
+                {{ form.hidden_tag() }} {# Renders CSRF token and any other hidden fields #}
 
-    {# Determine action URL: if product exists, it's an edit, otherwise it's an add. #}
-    {# For add, action is current URL (products.add_product). For edit, it's products.edit_product with product_id. #}
-    {# Flask-WTF default action="" is fine if the form is submitted to the same URL that rendered it. #}
-    <form method="POST" action="">
-        {{ form.hidden_tag() }}
+                <div class="form-group">
+                    {{ render_field(form.name, class="form-control " + ("is-invalid" if form.name.errors else ""), placeholder="e.g., Screwdriver Phillips #2") }}
+                </div>
 
-        <div class="form-group">
-            {{ render_field(form.name, class="form-control", placeholder="e.g., Screwdriver Phillips #2") }}
+                <div class="form-group">
+                    {{ render_field(form.unit_of_measure, class="form-control " + ("is-invalid" if form.unit_of_measure.errors else ""), placeholder="e.g., pieces, kg, meters") }}
+                </div>
+
+                <div class="form-group">
+                    {{ render_field(form.category, class="form-control " + ("is-invalid" if form.category.errors else ""), placeholder="e.g., Hand Tools, Consumables") }}
+                </div>
+
+                <div class="form-group">
+                    {{ render_field(form.minimum_stock, class="form-control " + ("is-invalid" if form.minimum_stock.errors else ""), placeholder="e.g., 10") }}
+                </div>
+
+                <div class="form-group mt-4">
+                    {% if product %}
+                        {{ form.submit(class="btn btn-primary", value="Update Product") }}
+                    {% else %}
+                        {{ form.submit(class="btn btn-primary", value="Add Product") }}
+                    {% endif %}
+                    <a href="{{ url_for('products.list_products') }}" class="btn btn-outline-secondary ml-2">Cancel</a>
+                </div>
+            </form>
         </div>
-
-        <div class="form-group">
-            {{ render_field(form.unit_of_measure, class="form-control", placeholder="e.g., pieces, kg, meters") }}
-        </div>
-
-        <div class="form-group">
-            {{ render_field(form.category, class="form-control", placeholder="e.g., Hand Tools, Consumables") }}
-        </div>
-
-        <div class="form-group">
-            {{ render_field(form.minimum_stock, class="form-control", placeholder="e.g., 10") }}
-        </div>
-
-        <div class="form-group">
-            {# Change button text based on context #}
-            {% if product %}
-                {{ form.submit(class="btn btn-primary", value="Update Product") }}
-            {% else %}
-                {{ form.submit(class="btn btn-primary", value="Add Product") }}
-            {% endif %}
-            <a href="{{ url_for('products.list_products') }}" class="btn btn-outline-secondary ml-2">Cancel</a>
-        </div>
-    </form>
+    </div>
 {% endblock %}

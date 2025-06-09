@@ -1,73 +1,85 @@
 {% extends "base.html" %}
-{% from "_form_helpers.html" import render_field %}
+{% from "macros/_form_helpers.html" import render_field %}
 
 {% block content %}
-    <h2>{{ legend if legend else "Record New Stock Movement" }}</h2>
+    <div class="row">
+        <div class="col-md-10 offset-md-1">
+            <h2>{{ legend if legend else "Record New Stock Movement" }}</h2>
+            <hr>
+            <form method="POST" action="{{ url_for('stock_movements.add_movement') }}">
+                {{ form.hidden_tag() }}
 
-    <form method="POST" action="{{ url_for('stock_movements.add_movement') }}">
-        {{ form.hidden_tag() }}
+                <div class="form-row">
+                    <div class="form-group col-md-6">
+                        {{ render_field(form.product_id, class="form-control " + ("is-invalid" if form.product_id.errors else "")) }}
+                    </div>
+                    <div class="form-group col-md-6">
+                        {{ render_field(form.deposit_id, class="form-control " + ("is-invalid" if form.deposit_id.errors else "")) }}
+                    </div>
+                </div>
 
-        <div class="form-row">
-            <div class="form-group col-md-6">
-                {{ render_field(form.product_id, class="form-control") }}
-            </div>
-            <div class="form-group col-md-6">
-                {{ render_field(form.deposit_id, class="form-control") }}
-            </div>
+                <div class="form-row">
+                    <div class="form-group col-md-6">
+                        {{ render_field(form.type, class="form-control " + ("is-invalid" if form.type.errors else "")) }}
+                    </div>
+                    <div class="form-group col-md-6">
+                        {{ render_field(form.quantity, class="form-control " + ("is-invalid" if form.quantity.errors else ""), placeholder="e.g., 10 or -5 for Ajuste") }}
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group col-md-6">
+                        {{ render_field(form.operator_id, class="form-control " + ("is-invalid" if form.operator_id.errors else "")) }}
+                    </div>
+                    <div class="form-group col-md-6">
+                        {{ render_field(form.client_id, class="form-control " + ("is-invalid" if form.client_id.errors else "")) }}
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    {{ render_field(form.timestamp, class="form-control " + ("is-invalid" if form.timestamp.errors else "")) }}
+                </div>
+
+                <div class="form-group mt-4">
+                    {{ form.submit(class="btn btn-primary") }}
+                    <a href="{{ url_for('home') }}" class="btn btn-outline-secondary ml-2">Cancel</a>
+                </div>
+            </form>
         </div>
+    </div>
 
-        <div class="form-row">
-            <div class="form-group col-md-6">
-                {{ render_field(form.type, class="form-control") }}
-            </div>
-            <div class="form-group col-md-6">
-                {{ render_field(form.quantity, class="form-control", placeholder="e.g., 10 or -5 for Ajuste") }}
-            </div>
-        </div>
-
-        <div class="form-row">
-            <div class="form-group col-md-6">
-                {{ render_field(form.operator_id, class="form-control") }}
-            </div>
-            <div class="form-group col-md-6">
-                {{ render_field(form.client_id, class="form-control") }}
-            </div>
-        </div>
-
-        <div class="form-group">
-            {{ render_field(form.timestamp, class="form-control") }}
-        </div>
-
-        <div class="form-group">
-            {{ form.submit(class="btn btn-primary") }}
-            {# <a href="{{ url_for('some_other_page_perhaps_dashboard') }}" class="btn btn-outline-secondary ml-2">Cancel</a> #}
-        </div>
-    </form>
-
-    {# Optional JavaScript to show/hide Operator/Client fields based on type #}
-    {# This can be added in a future iteration if desired for better UX #}
-    {# Example (very basic, using jQuery for simplicity if Bootstrap is loaded):
+    {# Basic JavaScript to conditionally show/hide Operator/Client fields #}
+    {# This improves UX by only showing relevant fields based on movement type #}
     <script>
-        $(document).ready(function(){
+        document.addEventListener('DOMContentLoaded', function() {
+            const typeField = document.getElementById('type');
+            const operatorGroup = document.getElementById('operator_id').closest('.form-group');
+            const clientGroup = document.getElementById('client_id').closest('.form-group');
+
             function toggleFields() {
-                var movementType = $('#type').val();
+                const movementType = typeField.value;
+
+                // Default to hidden, then show based on type
+                operatorGroup.style.display = 'none';
+                clientGroup.style.display = 'none';
+
                 if (movementType === 'Pedido operario') {
-                    $('#operator_id').closest('.form-group').show();
-                    $('#client_id').closest('.form-group').hide();
-                    $('#client_id').val(''); // Clear if hidden
+                    operatorGroup.style.display = 'block';
                 } else if (movementType === 'Entrega cliente') {
-                    $('#operator_id').closest('.form-group').show(); // Operator can be optional or required
-                    $('#client_id').closest('.form-group').show();
-                } else { // Compra, Ajuste
-                    $('#operator_id').closest('.form-group').hide();
-                    $('#operator_id').val('');
-                    $('#client_id').closest('.form-group').hide();
-                    $('#client_id').val('');
+                    clientGroup.style.display = 'block';
+                    // Operator might also be relevant for 'Entrega cliente', show if desired
+                    // operatorGroup.style.display = 'block';
+                } else if (movementType === 'Compra' || movementType === 'Ajuste') {
+                    // For Compra and Ajuste, both can be optional or not applicable
+                    // Show them if you want to allow associating them, otherwise keep hidden
+                    // operatorGroup.style.display = 'block'; // Example: show for Ajuste
                 }
             }
-            $('#type').change(toggleFields);
-            toggleFields(); // Initial call
+
+            if (typeField) {
+                typeField.addEventListener('change', toggleFields);
+                toggleFields(); // Initial call to set state based on current value (e.g., if form re-rendered with error)
+            }
         });
     </script>
-    #}
 {% endblock %}

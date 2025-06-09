@@ -1,6 +1,6 @@
 from flask_wtf import FlaskForm
 from wtforms import SelectField, SubmitField
-from wtforms.fields import DateField # Using DateField from wtforms
+from wtforms.fields import DateField
 from wtforms.validators import Optional
 from wtforms_sqlalchemy.fields import QuerySelectField
 from stock_control_app.project.models import Product, Deposit, Operator, Client, StockMovement
@@ -37,7 +37,7 @@ class MovementHistoryFilterForm(FlaskForm):
     )
     movement_type = SelectField(
         "Movement Type",
-        choices=[('', '-- All Types --')] + StockMovement.TYPE_CHOICES, # Using TYPE_CHOICES from model
+        choices=[('', '-- All Types --')] + StockMovement.TYPE_CHOICES,
         validators=[Optional()]
     )
     operator_id = QuerySelectField(
@@ -56,12 +56,12 @@ class MovementHistoryFilterForm(FlaskForm):
         blank_text='-- All Clients --',
         validators=[Optional()]
     )
-    start_date = DateField(
+    start_date = DateField( # wtforms.fields.DateField
         "Start Date",
         format='%Y-%m-%d',
         validators=[Optional()]
     )
-    end_date = DateField(
+    end_date = DateField( # wtforms.fields.DateField
         "End Date",
         format='%Y-%m-%d',
         validators=[Optional()]

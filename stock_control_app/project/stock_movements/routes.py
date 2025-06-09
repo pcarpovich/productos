@@ -1,7 +1,8 @@
 from flask import Blueprint, render_template, request, flash, redirect, url_for
-from stock_control_app.project.models import StockMovement, Product, Deposit, Operator, Client
-from stock_control_app.project.stock_movements.forms import StockMovementForm
-from stock_control_app.app import db
+from sqlalchemy.exc import IntegrityError
+from stock_control_app.app import db # Relative import for db
+from ..models import StockMovement, Product, Deposit, Operator, Client # Relative import for models
+from .forms import StockMovementForm # Relative import for forms
 from datetime import datetime
 
 stock_movement_bp = Blueprint('stock_movements',
@@ -13,36 +14,40 @@ def add_movement():
     form = StockMovementForm(request.form if request.method == 'POST' else None)
 
     if form.validate_on_submit():
-        # Extract data from form
         product = form.product_id.data
         deposit = form.deposit_id.data
         movement_type = form.type.data
         quantity = form.quantity.data
         operator = form.operator_id.data
         client = form.client_id.data
-        timestamp = form.timestamp.data or datetime.utcnow() # Use provided or default to now
+        # Ensure timestamp from form is used, or default to now if not provided/empty
+        timestamp_data = form.timestamp.data
+        if timestamp_data is None: # Check if DateTimeLocalField was empty
+            timestamp_to_save = datetime.utcnow()
+        else:
+            timestamp_to_save = timestamp_data
 
-        # Create new StockMovement object
         new_movement = StockMovement(
             product_id=product.id,
             deposit_id=deposit.id,
             type=movement_type,
-            quantity=quantity, # The actual quantity, directionality handled by type
+            quantity=quantity,
             operator_id=operator.id if operator else None,
             client_id=client.id if client else None,
-            timestamp=timestamp
+            timestamp=timestamp_to_save
         )
-
-        # Logic to update StockLevel will be handled by a listener or a subsequent subtask.
-        # For now, just save the movement.
 
         db.session.add(new_movement)
         try:
-            db.session.commit()
+            db.session.commit() # This will trigger the SQLAlchemy event to update StockLevel
             flash(f'Stock movement of {quantity} x "{product.name}" for "{deposit.name}" as "{movement_type}" recorded successfully.', 'success')
-            return redirect(url_for('stock_movements.add_movement')) # Redirect back to the form
+            # Redirect to a new form to allow multiple entries, or to a list page if one exists
+            return redirect(url_for('stock_movements.add_movement'))
+        except IntegrityError as e:
+            db.session.rollback()
+            flash(f'Error recording stock movement: Database integrity error. {str(e)}', 'danger')
         except Exception as e:
             db.session.rollback()
-            flash(f'Error recording stock movement: {str(e)}', 'danger')
+            flash(f'An unexpected error occurred: {str(e)}', 'danger')
 
     return render_template('stock_movement_form.html', form=form, title="Record New Stock Movement", legend="Record New Stock Movement")

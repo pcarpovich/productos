@@ -1,1 +1,1 @@
-# This file makes 'products' a Python package
+# This file makes 'products' a Python package.

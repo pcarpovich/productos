@@ -1,1 +1,1 @@
-# This file makes 'clients' a Python package
+# This file makes 'clients' a Python package.

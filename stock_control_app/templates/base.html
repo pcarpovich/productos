@@ -3,35 +3,38 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <title>{{ title if title else "Stock Control App" }}</title>
-    <!-- Add any CSS links here, e.g., Bootstrap -->
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') if config.ENV == 'development' else url_for('static', filename='css/style.min.css') }}">
+    <title>{% block page_title %}Stock Control App{% endblock %}</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    {% block extra_css %}{% endblock %}
 </head>
 <body>
-    <nav class="navbar navbar-expand-lg navbar-light bg-light">
-        <a class="navbar-brand" href="{{ url_for('hello_world') }}">Stock App</a>
-        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark mb-4">
+        <a class="navbar-brand" href="{{ url_for('home') }}">Stock Control</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavDropdown" aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
         </button>
-        <div class="collapse navbar-collapse" id="navbarNav">
-            <ul class="navbar-nav">
-                <li class="nav-item">
+        <div class="collapse navbar-collapse" id="navbarNavDropdown">
+            <ul class="navbar-nav mr-auto">
+                <li class="nav-item {% if request.endpoint == 'home' %}active{% endif %}">
+                    <a class="nav-link" href="{{ url_for('home') }}">Home <span class="sr-only">(current)</span></a>
+                </li>
+                <li class="nav-item {% if request.blueprint == 'products' %}active{% endif %}">
                     <a class="nav-link" href="{{ url_for('products.list_products') }}">Products</a>
                 </li>
-                <li class="nav-item">
+                <li class="nav-item {% if request.blueprint == 'deposits' %}active{% endif %}">
                     <a class="nav-link" href="{{ url_for('deposits.list_deposits') }}">Deposits</a>
                 </li>
-                <li class="nav-item">
+                <li class="nav-item {% if request.blueprint == 'operators' %}active{% endif %}">
                     <a class="nav-link" href="{{ url_for('operators.list_operators') }}">Operators</a>
                 </li>
-                <li class="nav-item">
+                <li class="nav-item {% if request.blueprint == 'clients' %}active{% endif %}">
                     <a class="nav-link" href="{{ url_for('clients.list_clients') }}">Clients</a>
                 </li>
-                <li class="nav-item">
+                <li class="nav-item {% if request.endpoint == 'stock_movements.add_movement' %}active{% endif %}">
                     <a class="nav-link" href="{{ url_for('stock_movements.add_movement') }}">Record Movement</a>
                 </li>
-                <li class="nav-item dropdown">
+                <li class="nav-item dropdown {% if request.blueprint == 'reports' %}active{% endif %}">
                     <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownReports" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                         Reports
                     </a>
@@ -42,15 +45,13 @@
                         <a class="dropdown-item" href="{{ url_for('reports.view_operator_consumption') }}">Operator Consumption</a>
                         <div class="dropdown-divider"></div>
                         <a class="dropdown-item" href="{{ url_for('reports.view_movement_history') }}">Movement History</a>
-                        {# Add other report links here #}
                     </div>
                 </li>
-                <!-- Add other navigation links here -->
             </ul>
         </div>
     </nav>
 
-    <div class="container mt-4">
+    <main role="main" class="container">
         {% with messages = get_flashed_messages(with_categories=true) %}
             {% if messages %}
                 {% for category, message in messages %}
@@ -65,12 +66,17 @@
         {% endwith %}
 
         {% block content %}{% endblock %}
-    </div>
+    </main>
 
-    <!-- Optional JavaScript -->
-    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
-    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.3/dist/umd/popper.min.js"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <footer class="footer mt-auto py-3 bg-light">
+        <div class="container text-center">
+            <span class="text-muted">Stock Control App &copy; {{ now.year if now else '2024' }}</span>
+        </div>
+    </footer>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.3/dist/umd/popper.min.js" integrity="sha384-q9CRHqZndzlxGLOj+xExGjZBva3pP6b3S6K7msmP4AB7gP3Q2l2X2r2EssyVUn92" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js" integrity="sha384-B4gt1jrGC7Jh4AgTPSdUtOBvfO8shuf57BaghqFfPlYxofvL8/KUEfYiJOMMV+rV" crossorigin="anonymous"></script>
+    {% block extra_js %}{% endblock %}
 </body>
 </html>
